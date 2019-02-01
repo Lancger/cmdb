@@ -23,8 +23,9 @@ hiredis
 docker
 docker-compose
 
-pycrypto==2.6.1
-paramiko==2.3.2
+# pycrypto==2.6.1
+pycrypto
+paramiko==2.3.3
 
 python-magic
 
