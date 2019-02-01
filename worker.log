@@ -1,0 +1,19 @@
+2019-02-01 18:28:24,607 - INFO - runworker - Using multi-threaded worker, 16 thread(s).
+2019-02-01 18:28:24,611 - INFO - runworker - Running worker against channel layer default (asgi_redis.core.RedisChannelLayer)
+2019-02-01 18:28:24,758 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:24,885 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,162 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,253 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,333 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,414 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,502 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,531 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,584 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,620 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,637 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,675 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,707 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,740 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,763 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,764 - INFO - worker - Listening on channels http.request, websocket.connect, websocket.disconnect, websocket.receive
+连接SFTP 127.0.0.1

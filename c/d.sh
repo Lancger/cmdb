@@ -33,8 +33,7 @@ run() {
             nohup $p/$f runworker --only-channels=${web_channel_route}websocket.* >& websocket.log --threads 16 &
             nohup $p/$f runworker --only-channels=${web_channel_route}http.* --threads 16 >& http.log &
             nohup $p/$f proxy_sshd >& sshd.log &
-            nohup $p/$f cert 4 >& cert.log &
-            nohup python -u /usr/bin/daphne -t 150 -b 0.0.0.0 -p $port --ws-protocol "graphql-ws" --proxy-headers sdj.asgi:channel_layer >& daphne.log &
+            nohup python -u /usr/bin/daphne -t 150 -b 0.0.0.0 -p $port --ws-protocol "graphql-ws" --proxy-headers dj.asgi:channel_layer >& daphne.log &
             echo "Starting....."
             sleep 1
             ps aux | grep -Ei '(c/d runworker|daphne|runserver 0.0.0.0:'$port'|c/d cert|python -u manage.py)' | grep -v 'grep'
@@ -60,7 +59,7 @@ run() {
 
 port=8088 #默认端口
 
-multiple_web=1
+multiple_web=0
 # 使一台机器支持运行多个django网站
 # channels只考虑分布式或一台主机仅支持一个django
 # 为支持同一主机运行多个网站，不同端口的runworker进行区分隔离，以免混用。

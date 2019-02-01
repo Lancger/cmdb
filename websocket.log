@@ -1,0 +1,19 @@
+nohup: 忽略输入
+2019-02-01 18:28:24,619 - INFO - runworker - Using multi-threaded worker, 16 thread(s).
+2019-02-01 18:28:24,656 - INFO - runworker - Running worker against channel layer default (asgi_redis.core.RedisChannelLayer)
+2019-02-01 18:28:24,744 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:24,889 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,048 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,216 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,274 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,404 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,473 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,524 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,554 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,616 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,630 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,662 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,694 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,722 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,752 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive
+2019-02-01 18:28:25,753 - INFO - worker - Listening on channels websocket.connect, websocket.disconnect, websocket.receive

@@ -1,0 +1,19 @@
+nohup: 忽略输入
+2019-02-01 18:28:26,535 INFO     Starting server at tcp:port=8088:interface=0.0.0.0, channel layer dj.asgi:channel_layer.
+2019-02-01 18:28:26,536 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2019-02-01 18:28:26,537 INFO     Using busy-loop synchronous mode on channel layer
+2019-02-01 18:28:26,537 INFO     Listening on endpoint tcp:port=8088:interface=0.0.0.0
+192.168.10.10:51404 - - [01/Feb/2019:18:28:32] "GET /cmdb/host/?t=2" 200 20366
+192.168.10.10:51405 - - [01/Feb/2019:18:28:33] "GET /favicon.ico" 301 -
+192.168.10.10:51405 - - [01/Feb/2019:18:28:33] "GET /static/img/favicon.ico" 200 1150
+192.168.10.10:51405 - - [01/Feb/2019:18:28:35] "GET /cmdb/webssh" 200 38963
+192.168.10.10:51405 - - [01/Feb/2019:18:28:36] "GET /favicon.ico" 301 -
+192.168.10.10:51410 - - [01/Feb/2019:18:28:36] "GET /static/img/favicon.ico" 200 1150
+192.168.10.10:51405 - - [01/Feb/2019:18:28:41] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_ZXRj&init=1&tree=1&_=1549016916184" 200 40831
+192.168.10.10:51435 - - [01/Feb/2019:18:28:48] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_ZGV2&_=1549016916185" 200 30116
+192.168.10.10:51448 - - [01/Feb/2019:18:28:56] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_a2Y&_=1549016916186" 200 1629
+192.168.10.10:51453 - - [01/Feb/2019:18:28:58] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_a2Yv5paw5bu65paH5Lu25aS5&_=1549016916187" 200 788
+192.168.10.10:51453 - - [01/Feb/2019:18:29:00] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_a2YvZGo&_=1549016916188" 200 4455
+192.168.10.10:51453 - - [01/Feb/2019:18:29:01] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_a2YvZGovLmdpdA&_=1549016916189" 200 3008
+192.168.10.10:51462 - - [01/Feb/2019:18:29:04] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_a2YvZ3M&_=1549016916190" 200 2787
+192.168.10.10:51462 - - [01/Feb/2019:18:29:06] "GET /elfinder/yawd-connector/sftp/1/?cmd=open&target=spdfid_a2YvZGo&_=1549016916191" 200 4455

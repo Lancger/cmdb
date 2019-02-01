@@ -1,0 +1,17 @@
+nohup: 忽略输入
+Traceback (most recent call last):
+  File "manage.py", line 22, in <module>
+    execute_from_command_line(sys.argv)
+  File "/usr/lib64/python2.7/site-packages/django/core/management/__init__.py", line 364, in execute_from_command_line
+    utility.execute()
+  File "/usr/lib64/python2.7/site-packages/django/core/management/__init__.py", line 356, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/usr/lib64/python2.7/site-packages/django/core/management/__init__.py", line 206, in fetch_command
+    klass = load_command_class(app_name, subcommand)
+  File "/usr/lib64/python2.7/site-packages/django/core/management/__init__.py", line 40, in load_command_class
+    module = import_module('%s.management.commands.%s' % (app_name, name))
+  File "/usr/lib64/python2.7/importlib/__init__.py", line 37, in import_module
+    __import__(name)
+  File "/kf/dj/cmdb/management/commands/cert.py", line 7, in <module>
+    from cmdb.models import Cert
+ImportError: cannot import name Cert
