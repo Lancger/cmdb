@@ -1,0 +1,466 @@
+{% extends '_base.html'%}
+{% block title %} 服务器命令{% endblock %}
+{% load staticfiles %}
+
+
+{% block header %}
+
+    <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}"/>
+
+    <link rel="stylesheet" href="{% static 'jstree/themes/default/style.min.css' %}"/>
+    <style>
+        pre{
+            white-space: pre-wrap!important;
+            word-wrap: break-word!important;
+            word-break: break-all!important;
+            *white-space:normal!important;
+        }
+    </style>
+{% endblock header %}
+
+
+
+{% block page-content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="portlet box box-success ">
+            <div class="portlet-title">
+                <div class="caption">
+                    <a class="text-danger">主机列表</a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row" style="margin-left: 10px;"> <!-- col-sm-offset-1 -->
+                    (搜索只会显示匹配主机，<br/>但勾选组会选中组中所有项，<br/>包含组中未匹配搜索的项)
+                    <input type="search" id="jstree_q" class="col-sm-8" placeholder="search"/>
+                </div>
+                <div id="server_list" class="tree-demo" role="tree"></div>
+                <div style="margin-top: 30px;">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+
+
+
+        <div class="ibox float-e-margins">
+
+            <!-- <div class="ibox-title">
+                <h3>批量执行命令</h3>
+            </div> -->
+
+            <div style="margin-top: 20px;">&nbsp;</div>
+
+            <div class="tabs-container">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tab-grep"><i class="fa fa-file-text-o"></i>文本搜索</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-cmd2"><i class="fa fa-star"></i>执行批处理</a></li>
+                    <li class=""><a data-toggle="tab" href="#tab-cmd3"><i class="fa fa-pencil-square-o"></i>自定义命令</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="tab-grep" class="tab-pane active">
+                        <div class="panel-body">
+
+                            <form id="cmd1" class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="hosts"/>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_name">搜索文件</label>
+                                    <div class="col-md-10">
+                                        <input type="text" name="file" value="/data/app/tomcat/logs/catalina.{% now 'Y-m-d' %}.out" required="" id="id_file" maxlength="250" placeholder="搜索文件" class="form-control">
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_key">搜索关键词</label>
+                                    <div class="col-md-10  form-inline">
+                                        <input type="text" name="key" value="Error" required="" id="id_key" maxlength="100" placeholder="搜索内容" class="form-control">
+                                        <div class="checkbox">
+                                            &nbsp;&nbsp;
+                                            <label for="id_case">
+                                                <input type="checkbox" name="case" class="" id="id_case"> 区分大小写
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_key">匹配次数</label>
+                                    <div class="col-md-10 form-inline">
+                                        <input type="number" name="num" value="10" required="" id="id_num" maxlength="100" placeholder="搜索内容" class="form-control">
+                                        <div class="checkbox">
+                                            &nbsp;&nbsp;
+                                            <label for="id_desc">
+                                                <input type="checkbox" name="desc" checked="" class="" id="id_desc"> 从后往前匹配
+                                            </label>
+                                        </div>
+                                        <div class="help-block">由于日志文件很大，默认只对前或后【10】条进行匹配
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_key">忽略字符串</label>
+                                    <div class="col-md-10  form-inline">
+                                        <input type="text" name="vstr" value=" INFO \[" id="id_vstr" maxlength="100" placeholder="忽略字符串" class="form-control">
+                                        <div class="help-block">比如忽略含" INFO ["字符的所有行，区分大小写，注意空格、特殊字符转义，留空则不忽略
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_lines">上下文行数</label>
+                                    <div class="col-md-10">
+                                        <input type="number" name="lines" value="30" id="id_lines" placeholder="上下行数" class="form-control">
+                                        <div class="help-block">匹配关键词所在行时，其上/下文各显示多少行信息，留空则不显示匹配行的上下文
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">到新窗口</label>
+                                    <div class="col-md-10">
+                                        <div class="checkbox">
+                                            <label for="id_newwin">
+                                                <input type="checkbox" name="newwin" checked="" id="id_newwin"> 是否提交到新窗口，全屏页面更方便查看日志
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+
+                                        <button class="btn btn-success" type="submit">执行</button>
+                                        <button class="btn btn-white" type="reset">重置</button>
+                                    </div>
+                                </div>
+                            </form>
+
+
+
+                        </div>
+                        
+                        <div class="panel panel-success">
+                            <div class="panel-heading">
+                                <h5>返回信息</h5>
+                            </div>
+                            <div class="panel-body">
+                                <span id="msg_cmd1"></span>
+                        
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div id="tab-cmd2" class="tab-pane">
+                        <div class="panel-body">
+
+
+                            <form id="cmd2" class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="hosts"/>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_type">选择批处理</label>
+                                    <div class="col-md-10">
+                                        <select name="sh" title="" required="" class="form-control" id="id_type">
+                                            <option></option>
+                                            {% for sh in shs %}
+                                            <option value="{{ sh.id }}">{{ sh }}</option>
+                                            {% endfor %}
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">到新窗口</label>
+                                    <div class="col-md-10">
+                                        <div class="checkbox">
+                                            <label for="id_newwin">
+                                                <input type="checkbox" name="newwin" id="id_newwin"> 是否提交到新窗口
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+
+                                        <button class="btn btn-primary" type="submit">执行</button>
+                                        <button class="btn btn-white" type="reset">重置</button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+
+
+                        </div>
+
+
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h5>返回信息</h5>
+                            </div>
+                            <div class="panel-body">
+                                <span id="msg_cmd2"></span>
+
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div id="tab-cmd3" class="tab-pane">
+                        <div class="panel-body">
+
+
+
+                            <form id="cmd3" class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="hosts"/>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label" for="id_name">输入命令</label>
+                                    <div class="col-md-10">
+                                        <input type="text" name="cmd" required="" id="id_cmd_text" maxlength="250" placeholder="特殊字符如& $需转义请自行\转义，和shell终端下输入命令的效果相同" class="form-control" {% if SERVER_TYPE == '2' %}value="ping "{% endif %}>
+
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">到新窗口</label>
+                                    <div class="col-md-10">
+                                        <div class="checkbox">
+                                            <label for="id_newwin">
+                                                <input type="checkbox" name="newwin" id="id_newwin"> 是否提交到新窗口
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+
+                                        <button class="btn btn-warning" type="submit">执行</button>
+                                        <button class="btn btn-white" type="reset">重置</button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+
+
+
+                        </div>
+
+
+                        <div class="panel panel-warning">
+                            <div class="panel-heading">
+                                <h5>返回信息</h5>
+                            </div>
+                            <div class="panel-body">
+                                <span id="msg_cmd3"></span>
+
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+</div>
+
+{% endblock page-content %}
+
+{% block footer-js %}
+<script src="{% static 'jstree/jstree.js' %}"></script>
+
+
+<script type="application/javascript">
+    $("#server_list").jstree({
+        core: {
+            themes: {
+                'name': 'default',
+                'icons': false,
+                // 'responsive': true
+            },
+            // check_callback: true,
+
+            data: [
+            {% for hostgroup in hostgroups%}
+                {
+                    // id: "{{ hostgroup.id }}",
+                    text: "{{ hostgroup.name }}", type:"folder",
+                    children: [
+                        {% for host in hostgroup.user_hosts %}
+                        {text: "{{ host.name }} ({{ host.ip }})", id: "{{ host.id }}", ip: "{{ host.ip }}", },
+                        {% endfor %}
+                    ]
+                },
+            {% endfor %}
+            ]
+
+
+        },
+
+
+        types: {
+            default : {"icon" : "fa fa-laptop"},
+            folder: {icon: "fa fa-folder"},
+            file: {icon: "fa fa-laptop"},
+
+        },
+
+        plugins: [
+            //"dnd", 
+            "types", "search", "checkbox", "themes",
+        ],
+        checkbox: {
+                            "keep_selected_style": false,//是否默认选中
+                            "three_state": true,//父子级别级联选择
+                            "tie_selection": true,
+                            // 'whole_node': false, //单击除复选框之外的数据时，类似单选效果
+                        },
+
+        search: {
+            "show_only_matches": true, //搜索时只显示匹配，未匹配项隐藏
+            "show_only_matches_children": true, //搜索时只显示匹配，匹配组时显示组中子节点(不管子节点匹不匹配搜索)，false则无论父、子节点，都只显示匹配项。
+        },
+
+
+    })
+    ;
+
+
+
+    $(function () {
+
+        var tree = $('#server_list').jstree(true);//获得整个树
+        var to = false;
+
+        $('#jstree_q').keyup(function () {
+            // jstree搜索
+            if(to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                var v = $('#jstree_q').val();
+                tree.search(v);
+            }, 500);
+        });
+
+
+        /*$(".btn-success, .btn-primary, .btn-warning ").click(function (){
+            // 表单提交
+            // 
+            this.form.submit();
+            if (this.type=="button") {
+
+                var tree = $('#server_list').jstree(true);//获得整个树
+                var hosts = tree.get_bottom_selected().toString(); //获得所有选中主机，返回值为数组
+
+                this.form.children.hosts.value=hosts;
+
+                // console.dir(this);
+                // console.log(this.form.children.hosts);
+                // this.form.submit();
+                this.type="submit";
+                // this.click(); //为了触发bootstrap输入检查
+
+            }
+        });*/
+
+
+        $("form").submit(function (e){
+            // 捕捉表单提交事件
+
+            var hosts = tree.get_bottom_selected(); //获得所有选中主机，返回值为数组
+            this.children.hosts.value=hosts.toString();
+            // console.log(this.target);
+            // return false;
+            if (this.elements.newwin.checked) {
+                this.target="_blank";
+            }
+            else {
+                this.target="_self";
+                var post_data = $(this).serialize()
+                // console.dir(this);
+                var msg_cmd = $('#msg_' + this.id); //展示返回信息
+                // console.log(msg_cmd);
+                $("button").attr("disabled","true"); 
+
+                // 转为Ajax处理POST
+                $.ajax({
+                    url: "?inpage=1",
+                    type: 'POST',
+                    data: post_data,
+                    timeout: 180000,
+                    error: function(msg_html){
+                        msg_cmd.html(msg_html);
+                    },
+                    success: function(msg_html){
+                        msg_cmd.html(msg_html);
+                    },
+
+                    complete: function(msg_html){
+                       $("button").removeAttr("disabled");
+                    },
+                })
+
+                // 已由Ajax处理，无需再当前页面转到提交，return false打断submit
+                return false;
+            }
+
+        });
+
+
+
+
+    });
+
+
+</script>
+
+
+
+{% endblock footer-js %}
+
+

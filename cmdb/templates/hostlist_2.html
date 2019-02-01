@@ -1,0 +1,287 @@
+{% extends "_base.html" %}
+
+
+{% block  title %}资产信息{% endblock %}
+
+{% block page-content %}
+
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                {% if parent_name %}
+                <li class="active">
+                    <strong>({{ parent_name }}) 下属主机列表</strong>
+                </li>
+                <li>
+                    <a href='javascript:history.go(-1)'>返回上一层</a>
+                </li>
+                {% else %}
+                <li>
+                    虚拟机管理
+                </li>
+                <li class="active">
+                    <strong>虚拟机列表</strong>
+                </li>
+                {% endif %}
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>资产信息</h5>
+
+                    </div>
+                    <div class="ibox-content">
+
+                          <div class="table-responsive">
+                            {% if not parent_name %}
+                            <a href="{% url 'cmdb:host_add' %}" class="btn btn-primary  ">
+                                添加</a>
+
+                            <a class="btn btn-danger" data-toggle="modal"
+                               data-target="#myModal2">批量删除
+                            </a>
+                            <a class="btn btn-info" onclick="javascript:run_cmd3()">批量更新配置
+                            </a>
+                            <form id="cmd3" action="{% url 'cmdb:cmdrun' %}" method="post" target="_blank">{% csrf_token %}<input type="hidden" name="hosts"/><input type="hidden" name="cmd"/></form>
+                            {% endif %}
+
+
+
+
+                            <form id="form_asset_all" class="form-horizontal  ">
+                                <table class="table table-striped table-bordered table-hover dataTables-example">
+                                    <thead>
+                                    <tr>
+                                        <th width="20"><input type="checkbox" id="CheckedAll"></th>
+                                        <th width="120">名称</th>
+                                        <th>主机名</th>
+                                        <th>管理IP</th>
+                                        <th>tomcat版本</th>
+                                        <th>JDK版本</th>
+                                        <th>系统版本</th>
+                                        <th>配置更新</th>
+                                        <th>动作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    {% for   row   in   hosts %}
+
+                                        <tr class="gradeA" id="{{ row.id }}">
+                                            <td><input type="checkbox" value="{{ row.id }}"  name="id"></td>
+                                            <td class="center"><a
+                                                    href="{% url 'cmdb:host' %}/{{ row.id }}/">{{ row.name }}</a>
+                                            </td>
+                                            <td>{{ row.hostname }}</td>
+                                            <td>{{ row.ip }}</td>
+                                            <td>{{ row.tomcat_ver }}</td>
+                                            <td>{{ row.jdk_ver }}</td>
+                                            <td>{{ row.os }}</td>
+                                            <td>{{ row.agenttime }}</td>
+                                            <td>
+                                                <a class="btn btn-primary  btn-xs " href="/admin/cmdb/host/{{ row.id }}/change/" target="_blank">详情</a>
+                                                <a class="btn btn-xs btn-success " title="Xshell终端" onclick="javascript:xshell(this)">终端</a>
+                                                <a class="btn btn-xs btn-info " href="{% url  'cmdb:webssh' %}#webssh_{{ row.id }}" title="网页终端" target="_blank">终端</a>
+                                                <a class="btn btn-xs btn-warning" href="{% url  'cmdb:webssh' %}#sftp_{{ row.id }}" title="SFTP" target="_blank">文件</a>
+                                                {% if not parent_name %}
+                                                <a class="btn btn-xs btn-info" title="更新主机配置" onclick="javascript:run_cmd3(this)">更新</a>
+                                                <a class="btn btn-danger btn-xs" data-toggle="modal" data-target="#myModal1" onclick="javascript:del_host(this)">删除 </a>
+                                                {% endif %}
+
+
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                    </tbody>
+
+                                </table>
+                            </form>
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal inmodal" id="myModal1" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <i class="fa fa-clock-o modal-icon"></i>
+                    <h4 class="modal-title">删除</h4>
+                    <span id="error" style="color:red;"></span>
+                    <small></small>
+                </div>
+                <form id="asset_del_form">
+                    <div class="modal-body">
+
+                        <div class="form-group"><input type="text" name="nid" style="display:none"/></div>
+                        <p><strong>确定删除？</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                        <a class="btn btn-danger m-r-sm asset_del">删除</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal inmodal" id="myModal2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <i class="fa fa-clock-o modal-icon"></i>
+                    <h4 class="modal-title">批量删除</h4>
+                    <span id="error_all" style="color:red;"></span>
+                    <small></small>
+                </div>
+                <form id="del_form">
+                    <div class="modal-body">
+
+                        <p><strong>确定删除？</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                        <a class="btn btn-danger m-r-sm  asset_all_del"> 批量删除</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block footer-js %}
+
+
+        <script>
+
+            function xshell(obj){
+                var hostid = $(obj).parent().parent().attr('id');
+                var url="/cmdb/clissh/"+hostid;
+                // console.log(url);
+
+                // var frame = document.getElementById('clissh_frame')
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    timeout: 3000,
+                    async: false,
+                    // async: true,
+                    error: function(){
+                        alert("创建xshell终端超时！请联系CMDB管理员");
+                    },
+                    success: function(ssh_url){
+                        // console.log(ssh_url);
+                        window.location.href=ssh_url;
+                        // console.log(frame.src)
+                    }
+                });
+
+            }
+
+
+            function run_cmd3(obj=null){
+                // 执行自定义命令，更新客户端机器配置信息
+                if (obj) {
+                    // 更新单台主机配置
+                    var host_ids = $(obj).parent().parent().attr('id');
+                }
+                else {
+                    var host_ids = '';
+                    var cs=document.getElementsByName('id');
+                    for (i=0; i < cs.length; i++) {
+                        if (cs[i].checked) {
+                            host_ids = host_ids+cs[i].value+',';
+                            // console.log(cs[i].value);
+                        }
+                    }
+                }
+
+                var cmd3_form = $("#cmd3")[0];
+                cmd3_form.hosts.value = host_ids;
+                var url = window.location.protocol + "//" + window.location.host;
+                cmd3_form.cmd.value = "wget -t1 -T5 -O agent.py "+url+"/static/agent.py >& /dev/null && python agent.py 0 "+url;
+
+                // 提交自定义命令
+                cmd3_form.submit();
+
+            }
+            function del_host(obj){
+                var id = $(obj).parent().parent().attr('id');
+                $('#asset_del_form').find('input[name="nid"]').val(id);
+            }
+            $(function () {
+
+                $('.asset_del').click(function () {
+                    $.ajax({
+                        url: "/cmdb/host/del",
+                        type: 'POST',
+                        data: $('#asset_del_form').serialize(),
+                        success: function (data) {
+                            var obj = JSON.parse(data);
+                            if (obj.status) {
+                                location.reload()
+                            } else {
+                                $('#error').text(obj.error);
+                            }
+                        }
+                    })
+                });
+
+                $('.asset_all_del').click(function () {
+                    var chk_value =[];
+                    $('input[name="id"]:checked').each(function(){ 
+                        chk_value.push($(this).val()); 
+                    });
+                    if (chk_value.length==0) {
+                        // alert("未选择任何主机，操作已忽略");
+                        // $('#error_all').text("未选择任何主机..");
+                        return
+                    }
+                    $.ajax({
+                        url: "/cmdb/host/alldel",
+                        type: 'POST',
+                        data: $('#form_asset_all').serialize(),
+                        success: function (data) {
+                            var obj = JSON.parse(data);
+                            if (obj.status) {
+                                location.reload()
+                            } else {
+                                $('#error_all').text(obj.error);
+                            }
+                        }
+
+                    })
+                });
+
+
+            });
+
+
+        </script>
+
+{% endblock %}

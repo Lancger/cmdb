@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+# path=`dirname "$0"` #脚本目录c
+path="$( cd "$( dirname "$0"  )" && pwd  )" #脚本目录c
+
+base=`dirname "$path"` #sdj路径
+
+cd $base #sdj
+
+
+case $1 in
+        reset|log|push) git $*;exit ;;
+        # *) echo 'else';;
+esac
+
+# args="reset log push"
+# if [[ " $args " =~ " $1 " ]];then
+#   git $*
+#   exit
+# fi
+
+
+arg1=$1
+
+
+if [ -z "$arg1" ]; then
+arg1='自动提交'
+
+
+elif [ "$arg1" == "cmdb6" ];then
+
+/usr/bin/rsync -tl -rv * --exclude-from=rsync.log root@10.2.21.9:/home/sdj
+
+    if [ "$2" == "r" ];then
+        #同步后需重启
+        /usr/bin/ssh root@10.2.21.9 'cd /home/sdj/ && c/d stop && chown -R app.app . && su app c/d start'
+    fi
+
+exit
+
+
+
+
+fi
+
+/usr/bin/git add --all .
+/usr/bin/git commit -a -m $arg1
+#git push
+echo `date`

@@ -1,0 +1,52 @@
+{% extends "host_1.html" %}
+
+{% load bootstrap3 %}
+
+
+
+
+
+
+    {% block host-head %}
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:host' %}?t=2">虚拟机管理</a>
+                </li>
+                <li class="active">
+                    <strong>虚拟机信息</strong>
+                </li>
+                <li>
+                    <a href='javascript:history.go(-1)'>返回上一层</a>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+    {% endblock host-head %}
+
+                                {% block host-info1 %}
+
+                                {% bootstrap_field form.machine layout="horizontal" %}
+                                {% bootstrap_field form.ssh_user layout="horizontal" %}
+                                {% bootstrap_field form.port layout="horizontal" %}
+
+                                {% endblock host-info1 %}
+
+
+
+
+
+                            {% block host-info2 %}
+                            {% endblock host-info2 %}
+
+                                {% block host-info3 %}
+                                {% endblock host-info3 %}

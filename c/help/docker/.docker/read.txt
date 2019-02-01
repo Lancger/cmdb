@@ -1,0 +1,13 @@
+
+SSL泛域名证书
+*.docker.sdj
+
+
+~/.docker/ca.pem
+~/.docker/cert.pem
+~/.docker/key.pem
+
+客户端证书默认目录 CMDB系统的 os.path.join(os.path.expanduser('~'), '.docker')
+客户端若在非默认目录，需定义环境变量DOCKER_CERT_PATH
+
+os.environ.setdefault('DOCKER_CERT_PATH', '/etc/docker/')

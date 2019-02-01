@@ -1,0 +1,196 @@
+{% extends "_base.html" %}
+{% load staticfiles %}
+
+{% block  title %}索引管理{% endblock %}
+{% block header %}
+    <link rel="stylesheet" href="{% static 'css/awesome-bootstrap-checkbox.css' %}"/>
+{% endblock header %}
+
+{% block page-content %}
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:eslist' %}">ES节点</a>
+                </li>
+                <li class="active">
+                    {{ object }} (<strong>索引管理</strong>)
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+
+
+    <div class="row wrapper wrapper-content animated fadeInRight">
+        <div class="col-lg-12">
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h5>{{ object.name }} (基本信息)</h5>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>集群</th>
+                            <th>节点</th>
+                            <th>主机</th>
+                            <th>端口</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                         <tr>
+                            <td><b>{{ object.cluster }}</b></td>
+                            <td><b>{{ object.node }}</b></td>
+                            <td><b>{{ object.host.ip }}</b></td>
+                            <td><b>{{ object.port }}</b></td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="form-inline">
+                    <h3 class="col-md-2">{{ object.name }} (索引)</h3>
+                    <div class="checkbox checkbox-success">
+                        <input id="show_only_open" type="checkbox" checked="">
+                        <label for="show_only_open">只显示开启项</label>
+                    </div>
+
+                    <button class="btn btn-info" type="button" id="refresh" disabled><i class="fa fa-refresh"></i>&nbsp;刷 新</button> ( 因ES服务器太慢，未刷新时默认缓存索引列表10分钟 )
+                    </div>
+                </div>
+                <div class="panel-body">
+
+                    <div class="col-md-8 form-inline">
+                        <label class="text-success">批量索引操作:</label>
+                        <input type="text" size="25" id="indices" placeholder="logstash-nginx-error-2015.12.*" class="form-control">
+                        <select class=" form-control" id="dotype"><option value="open">打开</option><option value="close">关闭</option></select>
+                        <button class="btn btn-success " type="button" id="submit" {% if readonly == 'readonly' %}disabled{% endif %} ><i class="fa fa-mail-forward"></i>&nbsp;提 交</button>
+                        <i></i>
+
+                    </div>
+
+
+                    <div class="row">
+                    <!-- <iframe src="{% url 'cmdb:es_indices' object.id %}"></iframe> -->
+                    <iframe allowtransparency="true" src="{% url 'cmdb:es_indices' object.id %}" width="100%" height="960" id="indices-frame" marginheight="0" marginwidth="0" frameborder="0" scrolling="no"></iframe>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+
+{% block footer-js %}
+    <script>
+
+        function setIframeHeight(iframe=document.getElementById('indices-frame')) {
+            if (iframe) {
+                var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+                if (iframeWin.document.body) {
+                    iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+                }
+            }
+        };
+
+        window.onload = function () {
+            // $('#refresh').attr('disabled',"true");
+            {% if not readonly %}$('#refresh').removeAttr("disabled");{% endif %}
+            // setIframeHeight();
+        };
+
+    $(function () {
+
+        $('#refresh').click(function () {
+            $('#refresh').attr('disabled',"true");
+            var show_only_open = 1;
+            if (! $('#show_only_open')[0].checked) {show_only_open=0;}
+            document.getElementById('indices-frame').src="{% url 'cmdb:es_indices' object.id %}?refresh=1&o="+show_only_open;
+            setTimeout(function(){$('#refresh').removeAttr("disabled");}, 10000);
+
+        });
+
+
+        $('#show_only_open').change(function () {
+            var show_only_open = 1;
+            if (! $('#show_only_open')[0].checked) {show_only_open=0;}
+            var frame = document.getElementById('indices-frame')
+            frame.src="{% url 'cmdb:es_indices' object.id %}?o="+show_only_open;
+            frame.document.location.reload(true); 
+
+        });
+
+
+        $('#submit').click(function () {
+            this_obj = $(this);
+            this_obj.attr('disabled',"true");
+            var indices=$('#indices').val();
+            var dotype=$('#dotype').val();
+            if (! (indices && dotype)) {
+                alert('信息输入不全');
+                this_obj.removeAttr("disabled");
+                return
+            }
+            var url=dotype+'/'+indices+'/';
+
+            var obj_i=this_obj.parent().children('i')
+            obj_i.attr("class","");
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (data) {
+                    console.log(url);
+                    console.log(data);
+                    console.log(obj_i);
+                    // alert(data);
+
+
+                    var obj = JSON.parse(data);
+                    obj_i.attr("title", obj.msg);
+                    cls="fa fa-3x pull-right"
+                    if (obj.status=='1') {
+                        obj_i.attr("class","fa-check text-navy "+cls);
+                    }
+                    else if (obj.status=='0') {
+                        obj_i.attr("class","fa-times text-danger "+cls);
+                    }
+                    else {
+                        obj_i.attr("class","fa-question text-warning "+cls);
+                    }
+                    this_obj.removeAttr("disabled")
+
+
+
+                }
+
+            })
+
+
+
+        });
+
+
+
+    });
+    </script>
+{% endblock %}

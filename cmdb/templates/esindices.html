@@ -1,0 +1,209 @@
+
+{% load  static %}
+
+<head>
+
+<link href="{% static  'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
+
+<link href=" {% static  'css/bootstrap.min.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'switchery/switchery.min.css' %}" />
+<link href="{% static 'css/style.css'  %} " rel="stylesheet">
+<link href="{% static 'css/datatables.min.css' %} "   rel="stylesheet">
+
+
+<script src="{% static 'switchery/switchery.min.js' %}"></script>
+<script src="{% static  'js/jquery-3.1.1.min.js'%}"></script>
+
+<script src="{% static  'js/datatables.min.js' %}"></script>
+
+
+<style type="text/css">
+    body { background-color: #FFF !important; margin:10px 16px 0px 16px; }
+    table {font-size: 13px;}
+    td {vertical-align:middle !important;}
+
+</style>
+
+</head>
+
+
+<body>
+
+<table class="table table-striped table-bordered table-hover dataTables-example">
+    <thead>
+    <tr>
+        <th>索引</th>
+        <th>开启</th>
+        <th>健康</th>
+        <th>文档数</th>
+        <th>大小</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for index in indices %}
+    <tr>
+        <td>{{ index.i }}</td>
+        <td><input type="checkbox" class="js-switch" {% if index.s == 'open' %}checked{% endif %} id="i_{{ forloop.counter }}" {{ readonly }} style="display: none;" /><i class=""></i></td>
+        <!-- <td><span class="btn btn-{% if index.s == 'open' %}success{% else %}default{% endif %} btn-xs">{{ index.s }}</span></td> -->
+
+        <td><span class="label label-{% if index.h == 'green' %}primary{% elif index.h == 'yellow' %}warning{% elif index.h == 'red' %}danger{% else %}{% endif %} label-xs">{{ index.h }}</span></td>
+
+        <td>{{ index.dc }}</td>
+        <td>{{ index.ss }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+</body>
+
+
+
+<script type="text/javascript">
+    
+
+$(function(){
+    // Default
+    // if-else statement used only for fixing <IE9 issues
+    // http://abpetkov.github.io/switchery/
+    // var set = { size: 'small', secondaryColor: '#ed5666' } //switchery forEach有BUG，只读用户disable按钮时无效或只能禁第一个，不自定义而使用默认参数时才行
+
+    if (Array.prototype.forEach) {
+        var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+
+        elems.forEach(function(html) {
+          var switchery = new Switchery(html);
+          // switchery.disable();
+          // console.log(switchery.options)
+        });
+    } else {
+        // console.log('111')
+        var elems = document.querySelectorAll('.js-switch');
+
+        for (var i = 0; i < elems.length; i++) {
+          var switchery = new Switchery(elems[i]);
+        }
+    }
+
+
+
+    $("input[type=checkbox]").change(function(){
+        //获取当前<td>的<i>元素
+        var obj_i=$("#"+this.id).parent().children('i')
+        obj_i.attr("class","");
+        //获取当前行的索引名
+        var index=$(this).parent().prev().text()
+        var dotype='close';
+        if (this.checked) { dotype='open' };
+        ref_url=document.referrer;
+        if (ref_url) {
+            url = ref_url + dotype + '/' + index + '/'
+        }
+        else {
+            url = '../' + dotype + '/' + index + '/'
+        }
+        // alert(url);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function (data) {
+                // console.log(url);
+                console.log(data);
+                console.log(obj_i);
+                // alert(data);
+
+
+                var obj = JSON.parse(data);
+                obj_i.attr("title", obj.msg);
+                if (obj.status=='1') {
+                    obj_i.attr("class","fa fa-check text-navy pull-right");
+                }
+                else if (obj.status=='0') {
+                    obj_i.attr("class","fa fa-times text-danger pull-right");
+                }
+                else {
+                    obj_i.attr("class","fa fa-question text-warning pull-right");
+                }
+
+
+
+            }
+
+        })
+
+
+    });
+});
+
+</script>
+
+
+
+
+
+
+<!-- Page-Level Scripts -->
+<script>
+    $(document).ready(function () {
+        $('.dataTables-example').DataTable({
+
+            "oLanguage": {
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "对不起，查询不到任何相关数据",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_条记录",
+                "sInfoEmtpy": "找不到相关数据",
+                "sInfoFiltered": " 数据表中共为 _MAX_ 条记录",
+                "sProcessing": "正在加载中...",
+                "sSearch": "搜索",
+                "oPaginate": {
+                    "sFirst": "第一页",
+                    "sPrevious": " 上一页 ",
+                    "sNext": " 下一页 ",
+                    "sLast": " 最后一页 "
+                }
+            },
+            // "order": [[1, 'desc']],
+            columnDefs: [{
+                'targets': [],    //都默认不排序
+                'orderable': false
+            }],
+
+
+            dom: '<"html5buttons"B>lTfgitp,',
+
+            buttons: [
+                    {extend: 'copy'},
+                    {extend: 'csv'},
+                    {extend: 'excel', title: 'ExampleFile'},
+                    {extend: 'print',
+                     customize: function (win){
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                    .addClass('compact')
+                                    .css('font-size', 'inherit');
+                    }
+                    }
+                ],
+            lengthMenu: [[20,], [20,]],
+            iDisplayLength: 20,
+            // bLengthChange: false, //去掉每页条数
+            // bFilter: false, //去掉搜索框
+        });
+
+
+    });
+
+    // parent.window.setIframeHeight();  
+    </script>
+
+
+
+
+
+

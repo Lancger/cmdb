@@ -1,0 +1,171 @@
+{% extends "_base.html" %}
+{% load bootstrap3 %}
+
+{% block  title %}主机信息{% endblock %}
+
+
+{% block page-content %}
+
+    {% block host-head %}
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:host' %}?t=1">物理机管理</a>
+                </li>
+                <li class="active">
+                    <strong>物理机信息</strong>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:host' %}?m={{ id }}">查看下属主机列表</a>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+    {% endblock host-head %}
+
+
+    <div class="row wrapper wrapper-content animated fadeInRight">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>信息更新</h5>
+
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" class="form-horizontal"
+                          action=""
+                          method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="ref_url" value="{{ ref_url }}">
+                        {% if form.errors %}
+                            <div class="alert alert-danger" style="margin: 20px auto 0px">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+
+                            <div class="col-sm-10 col-sm-offset-0">
+                                <h3>基本信息</h3>
+                                {% bootstrap_field form.name layout="horizontal" %}
+                                {% bootstrap_field form.hostname layout="horizontal" %}
+                                {% bootstrap_field form.ip layout="horizontal" %}
+                                {% bootstrap_field form.other_ip layout="horizontal" %}
+                                {% bootstrap_field form.group layout="horizontal" %}
+                                {% bootstrap_field form.usergroup layout="horizontal" %}
+                                {% bootstrap_field form.user layout="horizontal" %}
+                                {% bootstrap_field form.tomcat layout="horizontal" %}
+                                {% bootstrap_field form.tomcat_ver layout="horizontal" %}
+                                {% bootstrap_field form.jdk_ver layout="horizontal" %}
+                                {#% bootstrap_field form.app layout="horizontal" %#}
+
+                                {% bootstrap_field form.text layout="horizontal" %}
+
+                                {% block host-info1 %}
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label">所含虚拟主机</label>
+                                    <div class="col-md-9"><div id="id_host">
+
+                                    {% for host in hosts_off %}
+                                    <div class="checkbox"><label><input type="checkbox" name="host" value="{{ host.id }}"> {{ host }}</label></div>
+                                    {% endfor %}
+
+                                    {% if hosts_off and hosts_on %}<div class=""><label>------------------------</label></div>{% endif %}
+
+                                    {% for host in hosts_on %}
+                                    <div class="checkbox"><label><input type="checkbox" name="host" value="{{ host.id }}" checked > {{ host }}</label></div>
+                                    {% endfor %}
+
+
+                                    </div></div>
+                                </div>
+                                {% endblock host-info1 %}
+
+                            </div>
+                        </div>
+
+
+                        {% block host-info2 %}
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-10 col-sm-offset-0">
+                               <h3>业务信息</h3>
+                                {% bootstrap_field form.status layout="horizontal" %}
+
+                                {% bootstrap_field form.buydate layout="horizontal" %}
+
+                                {% bootstrap_field form.position layout="horizontal" %}
+                                {% bootstrap_field form.sernumb layout="horizontal" %}
+                                {% bootstrap_field form.sercode layout="horizontal" %}
+                                {% bootstrap_field form.admin layout="horizontal" %}
+
+                            </div>
+                        </div>
+                        {% endblock host-info2 %}
+
+
+
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-10 col-sm-offset-0">
+                               <h3>软硬件信息</h3>
+                                {% bootstrap_field form.os layout="horizontal" %}
+                                {% bootstrap_field form.kernel layout="horizontal" %}
+                                {% bootstrap_field form.cpu_model layout="horizontal" %}
+                                {% bootstrap_field form.cpu_num layout="horizontal" %}
+
+                                {% bootstrap_field form.memory layout="horizontal" %}
+                                {% bootstrap_field form.disk layout="horizontal" %}
+                                {% bootstrap_field form.vendor layout="horizontal" %}
+                                {% bootstrap_field form.sn layout="horizontal" %}
+
+                                {% block host-info3 %}
+                                {% endblock host-info3 %}
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-3">
+
+                                <button class="btn btn-primary" type="submit">提交</button>
+                                <button class="btn btn-white" type="reset">重置</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+
+{% block footer-js %}
+        <script>
+            $(document).ready(function () {
+                $('.select2').select2();
+            })
+        </script>
+
+
+{% endblock %}
+
+
+
+
+

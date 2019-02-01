@@ -1,0 +1,95 @@
+
+
+# Docker开启2375
+
+vi /etc/docker/daemon.json
+{
+    "hosts": ["tcp://0.0.0.0:2375", "unix://var/run/docker.sock"],
+    "tls": true,
+    "tlscacert": "/etc/docker/ca.pem",
+    "tlscert": "/etc/docker/cert.pem",
+    "tlskey": "/etc/docker/key.pem"
+}
+
+或
+
+vi /etc/sysconfig/docker
+
+DOCKER_OPTS="-H 0.0.0.0:2375 -H unix:///var/run/docker.sock"
+DOCKER_OPTS="-H 0.0.0.0:2375 -H unix:///var/run/docker.sock --tls --tlscacert=/root/.docker/ca.pem --tlscert=/root/.docker/cert.pem --tlskey=/root/.docker/key.pem"
+
+注意若无效，/usr/lib/systemd/system/docker.service需引入EnvironmentFile配置
+EnvironmentFile=-/etc/sysconfig/docker
+ExecStart=/usr/bin/dockerd $DOCKER_OPTS
+
+或
+vim /usr/lib/systemd/system/docker.service
+
+[Service]
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
+
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock --tls --tlscacert=/etc/docker/ca.pem --tlscert=/etc/docker/cert.pem --tlskey=/etc/docker/key.pem
+
+
+#重启服务端生效
+systemctl daemon-reload
+systemctl restart docker
+
+
+#master端执行创建
+docker swarm init --advertise-addr 10.5.0.32
+
+
+#worker端执行加入集群
+
+#加入集群的命令需通过master端获取 (master执行 docker swarm join-token worker )
+
+docker swarm join --token SWMTKN-1-24zbpry4cb01xjvwaky9rl9uwpzjnbh8vqhj6uu50r06r1mf27-awqyjmqf29e9gt5cg1afkjv83 192.168.80.238:2377
+
+#部署服务
+docker service create --name myweb --replicas 2 \
+--publish 8066:80 \
+--constraint node.ip==10.2.21.9 \
+nginx
+
+
+
+使用docker info和docker node ls查看集群中的相关信息
+
+
+
+# 私有镜像
+mkdir ~/.docker/
+vi /root/.docker/config.json
+
+REPO_USER=xyf
+PASSWORD=123456
+HEADER=$(echo "{\"username\":\"${REPO_USER}\",\"password\":\"${PASSWORD}\"}" | base64 -w 0 )
+echo HEADER=$HEADER
+
+
+
+#离开集群
+
+docker swarm leave --force
+
+
+
+
+
+
+
+# #etcd
+
+# docker run -ti -d -p 4001:4001 --name etcd docker.io/microbox/etcd -name discovery
+
+# docker run -ti -d -p 2376:2375 --name swarm-manager docker.io/swarm manage etcd://192.168.80.238:4001
+
+# #节点加入
+# docker run -tid -p 2375:2375 --name swarm-agent docker.io/swarm join --addr 10.2.21.9:2375 etcd://192.168.80.238:4001
+
+
+# #验证
+# docker -H 192.168.80.238:2376 info
+
+

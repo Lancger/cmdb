@@ -1,0 +1,145 @@
+{% extends "_base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+
+{% block  title %}网站用户信息{% endblock %}
+
+{% block header %}
+    <!-- Dual Listbox -->
+    <link rel="stylesheet" href="{% static 'plugins/dualListbox/bootstrap-duallistbox.min.css' %}"/>
+{% endblock %}
+
+
+
+{% block left %}
+    {% include "_left.html" with cmdb_user_active="active" %}
+{% endblock left %}
+
+
+{% block page-content %}
+
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:user' %}">网站用户</a>
+                </li>
+                <li class="active">
+                    <strong>修改用户 (设置行权限)</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+
+
+    <div class="row wrapper wrapper-content animated fadeInRight">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+
+                <div class="ibox-title">
+                    <a href="/admin/auth/user/{{ object.id }}/" class="btn btn-success" target="_blank"><i class="fa fa-user-secret"></i>&nbsp;设置表权限</a>
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" class="form-horizontal"
+                          action=""
+                          method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger" style="margin: 20px auto 0px">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+
+                            {% bootstrap_field form.username layout="horizontal" label_class="col-md-2" %}
+                            {% bootstrap_field form.is_superuser layout="horizontal" label_class="col-md-2" %}
+                            <div class="form-group">
+                                <label class="col-md-2 control-label" for="id_is_staff">&nbsp;</label>
+                                <div class="col-md-9">
+                                    <div class="checkbox"><label for="id_is_staff">{{ form.is_staff }} 职员状态</label>
+                                    </div>
+                                    <div class="help-block">用户是否可以进入后台页面。</div>
+                                </div>
+                            </div>
+                            {% bootstrap_field form.email layout="horizontal" label_class="col-md-2" %}
+
+
+
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">主机清单</label>
+                                <div class="col-md-9">
+
+                                <select class="form-control dual_select" name="host" multiple>
+
+                                {% for host in hosts_off %}
+                                    <option value="{{ host.id }}">{{ host }}</option>
+                                {% endfor %}
+
+
+                                {% for host in hosts_on %}
+                                    <option selected value="{{ host.id }}">{{ host }}</option>
+                                {% endfor %}
+
+                                </select>
+
+
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-3">
+
+                                <button class="btn btn-primary" type="submit">提交</button>
+                                <button class="btn btn-white" type="reset">重置</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block footer-js %}
+    <script src="{% static 'plugins/dualListbox/jquery.bootstrap-duallistbox.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+
+            $('.dual_select').bootstrapDualListbox({
+                selectorMinimalHeight: 160
+            });
+
+
+        });
+
+
+    </script>
+{% endblock footer-js %}
+
+
+

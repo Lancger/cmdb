@@ -1,0 +1,115 @@
+{% extends "_base.html" %}
+{% block  title %}CMDB | 首页{% endblock %}
+
+
+{{ user }}
+
+
+
+{% block page-content %}
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>系统结构</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li class="active">
+                    <strong>系统信息</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>模块</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="#">选项 1</a>
+                            </li>
+                            <li><a href="#">选项 2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                        <div class="form-group">
+
+                            <div class="col-sm-10 col-sm-offset-0">
+
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label">前端</label>
+                                    <div class="col-md-9"><div id="id_host">Inspinia v2.7 + Bootstrap3.3
+
+                                    </div></div>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-10 col-sm-offset-0">
+
+                                <div class="form-group">
+
+                                    <label class="col-md-3 control-label">后端</label>
+                                    <div class="col-md-9"><div id="id_host">Django v1.11 + Python2.7
+
+                                    </div></div>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-10 col-sm-offset-0">
+
+                                <div class="form-group">
+
+                                    <label class="col-md-3 control-label">数据库</label>
+                                    <div class="col-md-9"><div id="id_host">PostgreSQL9.6（正式） / MySQL5.7 （开发）
+
+                                    </div></div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+
+
+                </div>
+
+                <div class="ibox-content">
+                    <div class="col-sm-20 col-sm-offset-0">
+                        <div class="form-group">
+                        CMDB系统，基本 Django 框架开发，使用 Inspinia 做为前端模板<br/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+{% endblock %}
+

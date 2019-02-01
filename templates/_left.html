@@ -1,0 +1,142 @@
+{% load tags %}
+{%  menu_prem as menu %}
+
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                <span><img alt="image" class="img-circle" src="/static/img/profile_small.jpg"></span>
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="block m-t-xs"> <strong class="font-bold">{{ user }}</strong>
+
+                        </span>
+                        <span class="text-muted text-xs block">
+                            {% if user.is_superuser %}
+                            管理员 {% elif user.is_authenticated %}普通用户{% else %}访客{% endif %}
+                            <b class="caret"></b></span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        {% if user.is_authenticated %}
+                        <li><a href="/password_change/" target="_blank">修改密码</a></li>
+                        <li><a href="{% url 'logout' %}">登出</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}">登入</a></li>
+                        {% endif %}
+                    </ul>
+
+                </div>
+                <div class="logo-element">
+                    CMDB
+                </div>
+            </li>
+            <li>
+                <a href="/"><i class="fa fa-cubes"></i> <span class="nav-label">首页</span>
+                   </a>
+
+            </li>
+            {% if menu.view_host or menu.view_balance or menu.view_app or menu.deploy_host or menu.view_user or menu.view_group or menu.other_do_host %}
+            <li class="{% firstof cmdb_host_active cmdb_host_2_active cmdb_host_1_active cmdb_host_4_active cmdb_balance_active cmdb_other_active cmdb_app_active cmdb_conf_active cmdb_group_active cmdb_es_active cmdb_user_active cmdb_appsh_active cmdb_appconfile_active cmdb_cert_active cmdb_oss_file %}">
+                <a><i class="fa fa-server"></i> <span class="nav-label">资产管理</span>
+                    <span  class="fa arrow"> </span></a>
+                <ul class="nav nav-second-level">
+                    {% if menu.view_host %}
+                    <li  class="{{ cmdb_host_2_active }}"><a href="{% url 'cmdb:host' %}/?t=2">虚拟机</a></li>
+                    {# <li  class="{{ cmdb_host_1_active }}"><a href="{% url 'cmdb:host' %}/?t=1">物理机</a></li> #}
+                    {# <li  class="{{ cmdb_host_4_active }}"><a href="{% url 'cmdb:host' %}/?t=4">交换机</a></li> #}
+                    {% endif %}
+
+                    {% if menu.view_user or menu.view_group %}
+                    <li  class="{{ cmdb_user_active }}"><a href="{% url 'cmdb:user' %}">用户权限</a></li>
+                    {% endif %}
+                    {% if menu.other_do_host %}
+                    <li  class="{{ cmdb_es_active }}"><a href="{% url 'cmdb:eslist' %}">ES 节点</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+
+            {% if menu.ssh_host or menu.grep_host or menu.run_sh_host or menu.run_cmd_host %}
+            <li class="{% firstof cmdb_webssh_active cmdb_cmdrun_active cmdb_cmdrun2_active cmdb_appsh_run_active cmdb_sshlog_active %}">
+                <a><i class="fa fa-calendar"></i> <span class="nav-label">终端命令</span>
+                    <span  class="fa arrow"> </span></a>
+                <ul class="nav nav-second-level">
+                    {% if menu.ssh_host %}
+                    <li  class="{{ cmdb_webssh_active }}"><a href="{% url 'cmdb:webssh' %}">终端登陆</a></li>
+                    {% endif %}
+                    {% if menu.webssh_log %}
+                    <li  class="{{ cmdb_sshlog_active }}"><a href="{% url 'cmdb:sshlog' %}">终端日志</a></li>
+                    {% endif %}
+                    {% if menu.grep_host or menu.run_sh_host or menu.run_cmd_host %}
+                    <li  class="{{ cmdb_cmdrun_active }}"><a href="{% url 'cmdb:cmdrun' %}">服务器命令</a></li>
+                    {# <li  class="{{ cmdb_cmdrun2_active }}"><a href="{% url 'cmdb:cmdrun' %}?s=2">交换机命令</a></li> #}
+                    {% endif %}
+
+                </ul>
+            </li>
+            {% endif %}
+
+
+            {% if menu.view_docker %}
+            <li class="{% firstof cmdb_docker_host_active cmdb_docker_image_active cmdb_docker_image_file_active cmdb_docker_container_active cmdb_docker_net_active cmdb_docker_yml_active cmdb_docker_compose_active %}">
+                <a><i class="fa fa-calendar"></i> <span class="nav-label">Docker管理</span>
+                    <span  class="fa arrow"> </span></a>
+                <ul class="nav nav-second-level">
+                    <li  class="{{ cmdb_docker_host_active }}"><a href="{% url 'cmdb:docker_host_list' %}">宿主机</a></li>
+                    <li  class="{{ cmdb_docker_yml_active }}"><a href="{% url 'cmdb:docker_yml_list' %}">YML管理</a></li>
+                    {% if menu.view_dockercompose %}
+                    <li  class="{{ cmdb_docker_compose_active }}"><a href="{% url 'cmdb:docker_compose_list' %}">容器编排</a></li>
+                    {% endif %}
+
+                    <li  class="{{ cmdb_docker_image_file_active }}"><a href="{% url 'cmdb:docker_imagefile_list' %}">镜像包</a></li>
+                    {% if menu.images_manage %}
+                    <li  class="{{ cmdb_docker_image_active }}"><a href="{% url 'cmdb:docker_image' %}">镜像管理</a></li>
+                    {% endif %}
+                    {% if menu.containers_manage %}
+                    <li  class="{{ cmdb_docker_container_active }}"><a href="{% url 'cmdb:docker_container' %}">容器管理</a></li>
+                    {% endif %}
+                    {% if menu.net_manage %}
+                    <li  class="{{ cmdb_docker_net_active }}"><a href="{% url 'cmdb:docker_net' %}">容器网络</a></li>
+                    {% endif %}
+
+
+                </ul>
+            </li>
+            {% endif %}
+
+
+            {% if menu.view_admin %}
+            <li class="landing_link">
+                <a><i class="fa fa-database"></i> 
+                    <span class="nav-label">后台管理</span>
+                    <span  class="label label-warning pull-right">Django</span>
+                </a>
+                <ul class="nav nav-second-level">
+                    <li><a href="/admin/" target="_blank">后台主页</a></li>
+
+                    {% if menu.view_user %}
+                    <li><a href="/admin/auth/user/" target="_blank">网站用户</a></li>
+                    {% endif %}
+                    {% if menu.view_sshuser %}
+                    <li><a href="/admin/cmdb/sshuser/" target="_blank">SSH用户</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+
+        </ul>
+
+    </div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+

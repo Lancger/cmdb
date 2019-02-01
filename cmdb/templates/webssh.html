@@ -1,0 +1,703 @@
+{% extends '_base.html'%}
+{% load staticfiles %}
+{% block title %}Web SSH{% endblock %}
+
+
+{% block header %}
+    <link rel="stylesheet" href="{% static 'xterm/xterm.css' %}"/>
+    <!-- proton不支持search.show_only_matches样式隐藏未匹配节点 -->
+    <!-- <link rel="stylesheet" href="{% static 'jstree/themes/proton/style.min.css' %}"/> -->
+    <link rel="stylesheet" href="{% static 'jstree/themes/default/style.min.css' %}"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jquery-ui/jquery-ui.css'%}">
+    {# ※※※※◆jquery-ui需要在elfinder上方◆※※※※ #}
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/elfinder/css/elfinder.full.css'%}">
+{% endblock header %}
+
+
+
+{% block page-content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="portlet box box-success ">
+            <div class="portlet-title">
+                <div class="caption">
+                    <a class="text-danger">主机列表</a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row" style="margin-left: 10px;">
+                    <input type="search" id="jstree_q" class="col-sm-8" placeholder="search"/>
+                </div>
+                <div id="server_list" class="tree-demo" role="tree"></div>
+                <div style="margin-top: 30px;">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+
+        <div class="span2 leftMenu">
+            <ul class="nav nav-tabs marginBottom" id="myTab">
+                <li class="active ">
+                    <a href="#help" class="backgroundRed">帮助信息<button class="close closeTab" type="button" >×</button></a>
+                </li>
+            </ul>
+        </div>
+        <div class="tab-content span4">
+            <div class="tab-pane active" id="help">
+                <pre>
+                使用xshell配置说明:
+                1.修改最后一行为你自身的xshell.exe路径，比如C:\Xshell+Xftp\Xshell.exe;
+                2.保存并导入xx.reg文件到注册表。
+                3.建议使用xshell6，Xftp选项卡名称自动和Xshell保持一致。
+--------------------------------------------------------------
+Windows Registry Editor Version 5.00
+[HKEY_CLASSES_ROOT\ssh]
+@="URL:CMDB Loader Protocol"
+"URL Protocol"=""
+[HKEY_CLASSES_ROOT\ssh\DefaultIcon]
+@=""
+[HKEY_CLASSES_ROOT\ssh\shell]
+@="open"
+[HKEY_CLASSES_ROOT\ssh\shell\open]
+[HKEY_CLASSES_ROOT\ssh\shell\open\command]
+@="\"C:\\Xshell+Xftp\\Xshell.exe\" \"%1\""
+--------------------------------------------------------------
+
+                </pre>
+                下载*.reg示例（<a href="/static/xterm/cmdb_ssh.reg" target="_blank">cmdb_ssh.reg</a>）
+            </div>
+        </div>
+        <div style="margin-top: 30px;">&nbsp;</div>
+
+    </div>
+</div>
+
+{# <!-- 用于跳转到xshell -->
+<iframe id="clissh_frame" width="400" height="400" src="" marginheight="0" marginwidth="0" frameborder="0" scrolling="no"></iframe> #}
+
+{% endblock page-content %}
+
+{% block footer-js %}
+<script src="{% static 'xterm/xterm.js' %}"></script>
+<script src="{% static 'xterm/addons/fit/fit.js' %}"></script>
+<script src="{% static 'xterm/addons/terminado/terminado.js' %}"></script>
+<script src="{% static 'xterm/addons/fullscreen/fullscreen.js' %}"></script>
+<script src="{% static 'jstree/jstree.js' %}"></script>
+
+<!-- elFinder JS (REQUIRED) -->
+<script src="{% static 'plugins/elfinder/js/elfinder.full.js'%}"></script>
+<script src="{% static 'plugins/jquery-ui/jquery-ui.js'%}"></script>
+
+<script type="application/javascript">
+
+
+    //initilize tabs
+    $(function () {
+
+        //when ever any tab is clicked this method will be call
+        $("#myTab").on("click", "a", function (e) {
+            e.preventDefault();
+            // console.log(e);
+            $(this).tab('show');
+
+            // 设置网页标题和网址
+            var tabContentId = $(this).attr("href");
+            var tabContentTxt = $(this).text();
+            // console.log($(this));
+
+            document.title = tabContentTxt.slice(0,-1);
+            window.history.pushState({},0,'http://'+window.location.host+window.location.pathname+tabContentId);
+        });
+
+
+        //registerComposeButtonEvent();
+        registerCloseEvent();
+
+    });
+
+
+    //this method will register event on close icon on the tab..
+    function registerCloseEvent() {
+
+        $(".closeTab").click(function () {
+            //关闭tab
+            var tabContentId = $(this).parent().attr("href");
+            console.log(tabContentId);
+            // return false;
+            $(this).parent().parent().remove(); //tab标签
+            $(tabContentId).remove(); //tab终端窗口
+            $('#myTab a:last').tab('show'); // Select first tab
+            if (tabContentId.substring(0,8)=="#webssh_"){
+                var hostid=tabContentId.slice(8)
+                var ws=wss[hostid];
+                // console.log(ws);
+                if(ws && ws.readyState==1){
+                    ws.send('["close"]');
+                    delete wss[hostid];
+                }
+            }
+            // else if (tabContentId.substring(0,6)=="#sftp_"){
+            //     var hostid=tabContentId.slice(6)
+            //     var ws=wss[hostid+'_sftp'];
+            //     console.log(ws);
+            //     if(ws && ws.readyState==1){
+            //         ws.send('["close"]');
+            //         delete wss[hostid];
+            //     }
+
+            // }
+
+        });
+    }
+
+
+    //shows the tab with passed content div id..paramter tabid indicates the div where the content resides
+    function showTab(tabId) {
+        $('#myTab a[href="#' + tabId + '"]').tab('show');
+    }
+
+
+    function connect_webssh(hostid, hostinfo) {
+        var tabId = "webssh_"+hostid; //this is id on tab content div where the
+        if ($("#"+tabId).length <= 0){
+            $('.nav-tabs').append('<li><a href="#' + tabId + '">' + hostinfo + '<button class="close closeTab" type="button" >×</button></a></li>');
+            $('.tab-content').append('<div class="tab-pane" id="' + tabId + '"></div>');
+            showTab(tabId);
+            registerCloseEvent();
+
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var ws_path = ws_scheme + '://' + window.location.host + '/webssh/';
+            // console.log(ws_path);
+            make_terminal(document.getElementById(tabId), {rows: 32, cols: 90}, ws_path, hostid);
+        }else {
+            showTab(tabId);
+        }
+
+    }
+
+
+    async function connect_clissh(hostid, hostinfo, type="ssh") {
+        // 跳转到软件终端，比如Xshell
+        // E:\xyf\Xshell+Xftp\Xshell.exe -url  ssh://admin:admin@192.168.80.238:2222
+
+        // var url="ssh://admin:admin@192.168.80.238:2222";
+        // // console.log(url);
+        // // return false;
+        // window.location.href=url;
+
+        var url="/cmdb/clissh/"+hostid+"?type="+type;
+        console.log(url);
+
+        // var frame = document.getElementById('clissh_frame')
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            timeout: 3000,
+            async: false,
+            // async: true,
+            error: function(){
+                alert("创建xshell终端超时！请联系CMDB管理员");
+            },
+            success: function(ssh_url){
+                console.log(ssh_url);
+                // frame.src=ssh_url;
+
+                window.location.href=ssh_url;
+                // console.log(frame.src)
+            }
+        });
+        // await sleep(3);
+        // console.log(window.location.href)
+        // alert("未安装/设置网页跳转调用xshell!");
+
+
+    }
+
+
+    function connect_sftp(hostid, hostinfo) {
+
+        hostinfo=hostinfo+' sftp';
+        var tabId = "sftp_"+hostid; //this is id on tab content div where the
+        if ($("#"+tabId).length <= 0){
+            $('.nav-tabs').append('<li><a href="#' + tabId + '">' + hostinfo + '<button class="close closeTab" type="button" >×</button></a></li>');
+            $('.tab-content').append('<div class="tab-pane" id="' + tabId + '"></div>');
+            showTab(tabId);
+            registerCloseEvent();
+
+            $('#'+tabId).elfinder({
+                    resizable: true,
+                    height: '100%', //elFinder框高度
+                    url : '/elfinder/yawd-connector/sftp/'+hostid+'/',
+                    lang: 'zh_CN',
+                    soundPath: "{% static 'plugins/elfinder/sounds' %}",
+                    baseUrl : "{% static 'plugins/elfinder/' %}",
+
+                    //富文本编辑器
+                    commandsOptions: {
+                        edit: {
+                            editors : [
+                                {
+                                    // ACE Editor
+                                    // `mimes` is not set for support everything kind of text file
+                                    load : function(textarea) {
+                                        var self = this,
+                                            dfrd = $.Deferred(),
+                                            cdn  = "{% static 'plugins/elfinder/ace' %}",
+                                            // cdn  = "//cdnjs.cloudflare.com/ajax/libs/ace/1.2.5",
+                                            init = function() {
+                                                console.log(cdn);
+                                                if (typeof ace === 'undefined') {
+                                                    self.fm.loadScript([
+                                                        cdn+'/ace.js',
+                                                        cdn+'/ext-modelist.js',
+                                                        cdn+'/ext-settings_menu.js',
+                                                        cdn+'/ext-language_tools.js'
+                                                    ], start);
+                                                } else {
+                                                    start();
+                                                }
+                                            },
+                                            start = function() {
+                                                var editor, editorBase, mode,
+                                                ta = $(textarea),
+                                                taBase = ta.parent(),
+                                                dialog = taBase.parent(),
+                                                id = textarea.id + '_ace',
+                                                ext = self.file.name.replace(/^.+\.([^.]+)|(.+)$/, '$1$2').toLowerCase(),
+                                                // MIME/mode map
+                                                mimeMode = {
+                                                    'text/x-php'              : 'php',
+                                                    'application/x-php'       : 'php',
+                                                    'text/html'               : 'html',
+                                                    'application/xhtml+xml'   : 'html',
+                                                    'text/javascript'         : 'javascript',
+                                                    'application/javascript'  : 'javascript',
+                                                    'text/css'                : 'css',
+                                                    'text/x-c'                : 'c_cpp',
+                                                    'text/x-csrc'             : 'c_cpp',
+                                                    'text/x-chdr'             : 'c_cpp',
+                                                    'text/x-c++'              : 'c_cpp',
+                                                    'text/x-c++src'           : 'c_cpp',
+                                                    'text/x-c++hdr'           : 'c_cpp',
+                                                    'text/x-shellscript'      : 'sh',
+                                                    'application/x-csh'       : 'sh',
+                                                    'text/x-python'           : 'python',
+                                                    'text/x-java'             : 'java',
+                                                    'text/x-java-source'      : 'java',
+                                                    'text/x-ruby'             : 'ruby',
+                                                    'text/x-perl'             : 'perl',
+                                                    'application/x-perl'      : 'perl',
+                                                    'text/x-sql'              : 'sql',
+                                                    'text/xml'                : 'xml',
+                                                    'application/docbook+xml' : 'xml',
+                                                    'application/xml'         : 'xml'
+                                                };
+                                                
+                                                // set basePath of ace
+                                                ace.config.set('basePath', cdn);
+                                                
+                                                // set base height
+                                                // console.log(taBase.height());
+                                                taBase.height(600); //编辑框大小
+                                                
+                                                // detect mode
+                                                mode = ace.require('ace/ext/modelist').getModeForPath('/' + self.file.name).name;
+                                                if (mode === 'text') {
+                                                    if (mimeMode[self.file.mime]) {
+                                                        mode = mimeMode[self.file.mime];
+                                                    }
+                                                }
+
+                                                // show MIME:mode in title bar
+                                                taBase.prev().children('.elfinder-dialog-title').append(' (' + self.file.mime + ' : ' + mode.split(/[\/\\]/).pop() + ')');
+
+                                                // TextArea button and Setting button
+                                                $('<div class="ui-dialog-buttonset"/>').css('float', 'left')
+                                                .append(
+                                                    $('<button>TextArea</button>')
+                                                    .button()
+                                                    .on('click', function(){
+                                                        if (ta.data('ace')) {
+                                                            ta.removeData('ace');
+                                                            editorBase.hide();
+                                                            ta.val(editor.session.getValue()).show().focus();
+                                                            $(this).text('AceEditor');
+                                                        } else {
+                                                            ta.data('ace', true);
+                                                            editorBase.show();
+                                                            editor.setValue(ta.hide().val(), -1);
+                                                            editor.focus();
+                                                            $(this).text('TextArea');
+                                                        }
+                                                    })
+                                                )
+                                                .append(
+                                                    $('<button>Ace editor setting</button>')
+                                                    .button({
+                                                        icons: {
+                                                            primary: 'ui-icon-gear',
+                                                            secondary: 'ui-icon-triangle-1-e'
+                                                        },
+                                                        text: false
+                                                    })
+                                                    .on('click', function(){
+                                                        editor.showSettingsMenu();
+                                                    })
+                                                )
+                                                .prependTo(taBase.next());
+
+                                                // Base node of Ace editor
+                                                editorBase = $('<div id="'+id+'" style="width:100%; height:100%;"/>').text(ta.val()).insertBefore(ta.hide());
+
+                                                // Ace editor configure
+                                                ta.data('ace', true);
+                                                editor = ace.edit(id);
+                                                ace.require('ace/ext/language_tools');
+                                                ace.require('ace/ext/settings_menu').init(editor);
+                                                editor.$blockScrolling = Infinity;
+                                                editor.setOptions({
+                                                    theme: 'ace/theme/monokai',
+                                                    mode: 'ace/mode/' + mode,
+                                                    fontSize: '14px',
+                                                    wrap: true,
+                                                    enableBasicAutocompletion: true,
+                                                    enableSnippets: true,
+                                                    enableLiveAutocompletion: false
+                                                });
+                                                editor.commands.addCommand({
+                                                    name : "saveFile",
+                                                    bindKey: {
+                                                        win : 'Ctrl-s',
+                                                        mac : 'Command-s'
+                                                    },
+                                                    exec: function(editor) {
+                                                        self.doSave();
+                                                    }
+                                                });
+                                                editor.commands.addCommand({
+                                                    name : "closeEditor",
+                                                    bindKey: {
+                                                        win : 'Ctrl-w|Ctrl-q',
+                                                        mac : 'Command-w|Command-q'
+                                                    },
+                                                    exec: function(editor) {
+                                                        self.doCancel();
+                                                    }
+                                                });
+                                                
+                                                editor.resize();
+                                                
+                                                dfrd.resolve(editor);
+                                            };
+                                        
+                                        // init & start
+                                        init();
+                                        
+                                        return dfrd;
+                                    },
+                                    close : function(textarea, instance) {
+                                        if (instance) {
+                                            instance.destroy();
+                                            $(textarea).show();
+                                        }
+                                    },
+                                    save : function(textarea, instance) {
+                                        instance && $(textarea).data('ace') && (textarea.value = instance.session.getValue());
+                                    },
+                                    focus : function(textarea, instance) {
+                                        instance && $(textarea).data('ace') && instance.focus();
+                                    },
+                                    resize : function(textarea, instance, e, data) {
+                                        instance && instance.resize();
+                                    }
+                                }
+                            ]
+                        }
+                    }
+
+
+            });
+
+            // var ws = new WebSocket('ws://192.168.80.238:8088/sftp');
+            // wss[hostid+'_sftp'] = ws;
+            // ws.onopen = function (event) {
+            //     ws.send(JSON.stringify(["hostid", hostid]));
+            //     console.log(11111111111);
+            // };
+
+
+        }else {
+            showTab(tabId);
+        }
+        // ws.send('123');
+
+    }
+
+
+</script>
+<script type="application/javascript">
+    $(function () {
+        // Terminal.applyAddon(fullscreen);
+        Terminal.applyAddon(fit);
+    });
+
+
+    var wss = {}; // 收集所有host_ws，用于关闭
+    // var time=Date.parse(Date());
+    // function chktime(minout) {
+    //     // webssh保持连接
+    //     now=Date.parse(Date());
+    //     var min=(now-time)/1000/60;
+    //     time=now;
+    //     if (min<minout) {
+    //         return 0;
+    //     }else{
+    //         return 1;
+    //     }
+    // }
+    // sec=(Date.parse(Date())-time)/1000;
+    function sleep(s) {
+        // 延时秒数，async function中使用await sleep(1);
+        return new Promise(resolve => setTimeout(resolve, s*1000))
+    }
+    function make_terminal(element, size, ws_url,hostid) {
+        var term = new Terminal({
+            cols: size.cols,
+            rows: size.rows,
+            screenKeys: true,
+            useStyle: true,
+            fontSize:14,
+            // cursorBlink: false,  // Blink the terminal's cursor
+            // debug: true,
+        });
+        term.open(element, false);
+        term.fit();
+        // term.toggleFullScreen(true);
+
+        var ws = new WebSocket(ws_url);
+        wss[hostid] = ws;
+        // console.log(wss);
+        ws.onopen = function (event) {
+            ws.send(JSON.stringify(["hostid", hostid]));
+            //set terminal width and height
+            <!--ws.send(JSON.stringify(["set_size", size.rows, size.cols,-->
+                <!--window.innerHeight, window.innerWidth]));-->
+            term.on('data', async function (data) {
+                if(ws.readyState==1){
+                    // await sleep(0.05); // 设置延时，以防按键过快而输出慢，导致命令审计处理复杂
+                    ws.send(JSON.stringify(['stdin', data]));
+                    // ws.send(JSON.stringify(['stdin', 'ls\n']))
+                    // console.log(data);
+                }
+
+            });
+
+            term.on('title', function (title) {
+                document.title = title;
+            });
+
+
+            ws.onmessage = function (event) {
+                json_msg = JSON.parse(event.data);
+                switch (json_msg[0]) {
+                    case "stdout":
+                        term.write(json_msg[1]);
+                        break;
+                    case "disconnect":
+                        term.write("\r\n\r\n[WebSocket关闭...]\r\n");
+                        ws.close();
+                        // console.log(ws);
+                        break;
+                }
+            };
+        };
+        return {socket: ws, term: term};
+    }
+
+
+</script>
+
+
+<script type="application/javascript">
+    $("#server_list").jstree({
+        core: {
+            themes: {
+                // 'name': 'proton',
+                'name': 'default',
+                // 'responsive': true
+            },
+            // check_callback: true,
+
+            data: [
+            {% for hostgroup in hostgroups%}
+                {
+                    // id: "{{ hostgroup.id }}",
+                    text: "{{ hostgroup.name }}", type:"folder",
+                    children: [
+                        {% for host in hostgroup.user_hosts %}
+                        {text: "{{ host.name }} ({{ host.ip }})", id: "{{ host.id }}", ip: "{{ host.ip }}", },
+                        {% endfor %}
+                    ]
+                },
+            {% endfor %}
+            ]
+
+
+        },
+
+
+        types: {
+            default : {"icon" : "fa fa-laptop"},
+            folder: {icon: "fa fa-folder"},
+            file: {icon: "fa fa-laptop"},
+
+        },
+
+        plugins: [
+            //"dnd", 
+            "contextmenu", "types", "search",
+        ],
+
+
+        search: {
+            "show_only_matches": true, //搜索时只显示匹配，未匹配项隐藏
+            "show_only_matches_children": true, //搜索时只显示匹配，匹配组时显示组中子节点(不管子节点匹不匹配搜索)，false则无论父、子节点，都只显示匹配项。
+        },
+
+
+        contextmenu: {
+            "items": function ($node) {
+                var tree = $("#server_list").jstree(true);
+                return {
+                    "xshell": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "label": "Xshell终端",
+                        "action": function (obj) {
+                            connect_clissh($node.id, $node.text);
+                        }
+                    },
+                    // "xftp": {
+                    //     "separator_before": false,
+                    //     "separator_after": false,
+                    //     "label": "Xftp文件",
+                    //     "action": function (obj) {
+                    //         connect_clissh($node.id, $node.text, "sftp");
+                    //     }
+                    //     // Xftp命令行启动参数未知，暂不支持. 目前只能从Xshell中启动
+                    // },
+                    "webssh": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "label": "网页终端",
+                        "action": function (obj) {
+                            // console.log($node);
+                            // console.log(obj);
+                            connect_webssh($node.id, $node.text);
+                        }
+                    },
+                    "sftp": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "label": "网页SFTP",
+                        "action": function (obj) {
+                            connect_sftp($node.id, $node.text);
+                        }
+                    },/*
+                    "disconnect": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "label": "关闭终端",
+                        "action": function (obj) {
+                            $("#hostid_"+$node.id).remove();
+                            $('#myTab a[href="#hostid_'+$node.id+'"]').remove();
+                            $('#myTab a:last').tab('show'); // Select first tab
+                        }
+                    },*/
+                };
+            }
+        }
+    }).on('show_contextmenu.jstree', function(e, reference, element) {
+        if ( reference.node.parents.length < 2 ) {
+            $('.vakata-context').remove();
+        }
+    }).on("ready.jstree", function (e, data) {
+        // data.instance.open_all();
+        // console.log(data);
+        // URL直接打开终端
+        var tabContentId=window.location.hash;
+        // console.log(tabContentId.substring(0,8));
+        if (tabContentId.substring(0,8)=="#webssh_"){
+            hostid=tabContentId.slice(8);
+            connect_serv=connect_webssh;
+        }
+        else if (tabContentId.substring(0,8)=="#clissh_"){
+            hostid=tabContentId.slice(8);
+            connect_serv=connect_clissh;
+        }
+        else if (tabContentId.substring(0,6)=="#sftp_"){
+            hostid=tabContentId.slice(6);
+            connect_serv=connect_sftp;
+        }
+        else{
+            return false;
+        }
+        // console.log(hostid);
+        if (hostid) {
+            // alert(hostid);
+            var tree = $("#server_list").jstree(true);
+            hostinfo = tree.get_node(hostid).text
+            // console.log(hostinfo);
+            connect_serv(hostid, hostinfo);
+            // console.log($("#14_anchor"));
+            // $("#"+hostid+"_anchor").addClass('jstree-clicked');
+        }
+
+    })
+    /*.on('move_node.jstree', function(e,data){
+        // 鼠标拖动事件
+        console.info(data);
+        jQuery.post("/cmdb/host_group",
+            {                    
+             id : data.node.id, 
+             parent : data.parent,
+             position:data.position,
+             old_parent:data.old_parent,
+             is_multi:data.is_multi,
+             },
+             function(data,status){                                        
+                 alert("Data: " + data + "\nStatus: " + status);
+             }, 'json');
+         
+    })*/
+/*    .bind('dblclick.jstree',function(e){
+        // 双击事件
+        // alert($(e.target).parents('li').attr('id'));
+        connect_webssh($(e.target).parents('li').attr('id'));
+    })*/
+
+    ;
+
+    $(function () {
+        var to = false;
+        $('#jstree_q').keyup(function () {
+            if(to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                var v = $('#jstree_q').val();
+                $('#server_list').jstree(true).search(v);
+            }, 250);
+        });
+
+    });
+
+
+
+</script>
+
+
+
+{% endblock footer-js %}
+
+

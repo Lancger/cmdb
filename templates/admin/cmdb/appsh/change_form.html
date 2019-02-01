@@ -1,0 +1,17 @@
+{% extends 'admin/change_form.html' %}
+
+{% block admin_change_form_document_ready %}
+
+    {% block object-tools %}
+        <ul class="object-tools">
+            {% if object_id %}
+            <li>
+                <a href="{% url 'cmdb:appsh_view' object_id %}">查看配置效果</a>
+            </li>
+            {% endif %}
+        {{ block.super }}
+            
+        </ul>
+    {% endblock %}
+
+{% endblock %}

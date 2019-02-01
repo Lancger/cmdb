@@ -1,0 +1,223 @@
+{% load staticfiles %}
+
+{% if inpage == "0" %}
+<!DOCTYPE html>
+<title>CMD RUN MSG</title>
+<meta charset="utf-8"/>
+
+{% include  "_css.html" %}
+<style type="text/css">
+    body { background-color: #FFF !important; margin:30px 16px 30px 30px; }
+    pre{
+        white-space: pre-wrap!important;
+        word-wrap: break-word!important;
+        word-break: break-all!important;
+        *white-space:normal!important;
+    }
+</style>
+{% endif %}
+
+<!-- <link rel="stylesheet" href="{% static 'codemirror/theme/dracula.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/erlang-dark.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/material.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/lesser-dark.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/midnight.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/monokai.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/pastel-on-dark.css' %}"/>
+<link rel="stylesheet" href="{% static 'codemirror/theme/the-matrix.css' %}"/>
+ -->
+
+<link rel="stylesheet" href="{% static 'codemirror/theme/seti.css' %}"/>
+
+<link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}"/>
+
+<script src="{% static 'codemirror/lib/codemirror.js' %}"></script>
+<script src="{% static 'codemirror/mode/javascript/javascript.js' %}"></script>
+
+
+
+
+
+<h3 class="text-success font-bold"> 命令(<span class="text-danger">{{ cmd_msgs.1.cmd }}</span>)执行结果</h3>
+
+<table class="table table-striped table-bordered table-hover dataTables-example">
+    <thead><tr><th></th></tr></thead>
+    <tbody>
+
+{% for host_msg in cmd_msgs.0 %}
+    <tr>
+        <td>
+
+<div class="bg-{% cycle 'info' 'success' 'primary' %} font-bold p-xxs" data-toggle="collapse" data-target="#host{{ host_msg.1 }}">
+主机: {{ host_msg.0 }}
+</div>
+
+<div id="host{{ host_msg.1 }}" class="collapse in">
+    <textarea id="code_{{ host_msg.1 }}" name="code" style="width:100%;" rows="2">{{ host_msg.2 }}</textarea>
+
+</div>
+
+<hr/>
+        </td>
+    </tr>
+
+{% endfor %}
+
+
+
+
+    </tbody>
+</table>
+
+
+
+
+
+<!-- <p>Select a theme: <select onchange="selectTheme()" id="select{{ host_msg.1 }}">
+
+    <option>dracula</option>
+
+    <option>erlang-dark</option>
+
+
+    <option>material</option>
+
+    <option selected>seti</option>
+
+
+
+    <option>lesser-dark</option>
+
+    <option>midnight</option>
+    <option>monokai</option>
+
+    <option>pastel-on-dark</option>
+
+    <option>the-matrix</option>
+</select>
+</p> -->
+
+
+
+
+
+
+<script>
+
+    var values = {
+        lineNumbers: true, // 显示行号
+        styleActiveLine: true,
+        matchBrackets: true,
+        lineWrapping:"wrap", // 按宽度换行
+        readOnly: true, // 只读
+        // readOnly: "nocursor", // 只读且不显示文本光标焦点，但不能复制文本
+        theme: "seti",
+    };
+
+    {% for host_msg in cmd_msgs.0 %}
+    var textarea = document.getElementById("code_{{ host_msg.1 }}");
+    var editor = CodeMirror.fromTextArea(textarea, values);
+    editor.setSize("100%", "100%");
+    {% endfor %}
+    // console.dir(editor);
+
+
+
+/*    var input = document.getElementById("select{{ host_msg.1 }}");
+    function selectTheme() {
+      var theme = input.options[input.selectedIndex].textContent;
+      editor.setOption("theme", theme);
+      // location.hash = "#" + theme;
+    }
+
+    var choice = (location.hash && location.hash.slice(1)) ||
+                 (document.location.search &&
+                  decodeURIComponent(document.location.search.slice(1)));
+    if (choice) {
+        input.value = choice;
+        editor.setOption("theme", choice);
+    }
+    CodeMirror.on(window, "hashchange", function() {
+        var theme = location.hash.slice(1);
+        if (theme) { input.value = theme; selectTheme(); }
+    });
+*/
+
+
+
+
+</script>
+
+
+
+{% if inpage == "0" %}
+
+
+<script src="{% static  'js/jquery-3.1.1.min.js' %}"></script>
+<script src="{% static  'js/bootstrap.min.js' %}"></script>
+<script src="{% static  'js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+<script src="{% static  'js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="{% static  'js/inspinia.js' %} "></script>
+<script src="{% static  'js/datatables.min.js' %}"></script>
+
+
+
+
+
+
+<!-- Page-Level Scripts -->
+<script>
+   $(document).ready(function () {
+        $('.dataTables-example').DataTable({
+
+            "oLanguage": {
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "对不起，查询不到任何相关数据",
+                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_条记录",
+                "sInfoEmtpy": "找不到相关数据",
+                "sInfoFiltered": " 数据表中共为 _MAX_ 条记录",
+                "sProcessing": "正在加载中...",
+                "sSearch": "搜索过滤",
+                "oPaginate": {
+                    "sFirst": "第一页",
+                    "sPrevious": " 上一页 ",
+                    "sNext": " 下一页 ",
+                    "sLast": " 最后一页 "
+                }
+            },
+            "ordering": false,
+            // "order": [[1, 'desc']],
+            // columnDefs: [{
+            //     'targets': [0],    //都默认不排序
+            //     'orderable': false
+            // }],
+
+
+            dom: '<"html5buttons"B>lTfgitp,',
+
+            buttons: [],
+            lengthMenu: [[20,], [20,]],
+            iDisplayLength: 20,
+            bLengthChange: false, //去掉每页条数
+            // bFilter: false, //去掉搜索框
+        });
+
+
+    });
+
+
+
+
+    </script>
+
+
+
+
+{% endif %}
+
+
+
+
+
