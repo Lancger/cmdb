@@ -1,4 +1,5 @@
-django==1.11.6
+# 部署测试2019.02.01
+django==1.11.18
 django-bootstrap3
 
 ##使用postgresql
@@ -22,8 +23,9 @@ hiredis
 docker
 docker-compose
 
-pycrypto==2.6.1
-paramiko==2.3.1
+# pycrypto==2.6.1
+pycrypto
+paramiko==2.3.3
 
 python-magic
 
