@@ -12,6 +12,7 @@ django-bootstrap3
 
 https://github.com/darklow/django-suit/tarball/v2
 
+# yum install -y python-devel gcc
 channels==1.1.8
 asgi-redis==1.4.3
 daphne==1.4.2

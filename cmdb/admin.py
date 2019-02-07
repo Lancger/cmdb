@@ -52,7 +52,7 @@ class Host_admin(MyAdmin):
     list_filter = ('group', 'asset_type', 'tomcat_ver', 'jdk_ver')
     # filter_horizontal = ('app',)
     fieldsets = [
-        ('基础信息', {'fields': ['name', 'hostname', 'ip', 'other_ip', 'port', 'group', 'usergroup', 'tomcat_ver', 'jdk_ver', 'app', 'ssh_user', 'ports']}),
+        ('基础信息', {'fields': ['name', 'hostname', 'ip', 'other_ip', 'port', 'group', 'usergroup', 'tomcat_ver', 'jdk_ver', 'ssh_user', 'ports']}),
         ('软硬件信息', {'fields': ['os', 'kernel', 'cpu_model', 'cpu_num', 'memory', 'disk', 'vendor', 'sn'], }),
         ('业务信息', {'fields': ['status', 'asset_type', 'machine', 'buydate', 'position', 'sernumb', 'sercode', 'admin', ], 'classes': ['collapse'], }),
         ('其它信息', {'fields': ['createtime', 'agenttime', 'tomcat', 'text', ], }),

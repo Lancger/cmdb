@@ -85,50 +85,50 @@ WSGI_APPLICATION = 'dj.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 # 使用sqlite3
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-try:
-    import psycopg2
-    # 默认使用PostgreSQL
-    engine = 'django.db.backends.postgresql_psycopg2'
-    options = {}
-
-except:
-    # import MySQLdb
-    # conn = MySQLdb.connect(user=db['USER'], db=db['NAME'], passwd=db['PASSWORD'], host=db['HOST'])
-    # conn.ping()
-    # conn.close()
-
-    # 使用MySQL
-    engine = 'django.db.backends.mysql'
-    options = {'charset': 'utf8', 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"}
-
-    from django.db.backends.mysql.base import DatabaseFeatures
-    DatabaseFeatures.supports_microsecond_precision = False  # mysql5.6+ 时间不要毫秒
-
-
-user = 'root'
-password = ''
-host = '127.0.0.1'
-
 DATABASES = {
     'default': {
-        'ENGINE': engine,
-        'NAME': 'dj',
-        'USER': user,
-        'PASSWORD': password,
-        'HOST': host,
-        # 'PORT': '5432',
-        # 'TEST': {'NAME': 'test',},
-        'OPTIONS': options,
-    },
-
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+
+# try:
+#     import psycopg2
+#     # 默认使用PostgreSQL
+#     engine = 'django.db.backends.postgresql_psycopg2'
+#     options = {}
+
+# except:
+#     # import MySQLdb
+#     # conn = MySQLdb.connect(user=db['USER'], db=db['NAME'], passwd=db['PASSWORD'], host=db['HOST'])
+#     # conn.ping()
+#     # conn.close()
+
+#     # 使用MySQL
+#     engine = 'django.db.backends.mysql'
+#     options = {'charset': 'utf8', 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"}
+
+#     from django.db.backends.mysql.base import DatabaseFeatures
+#     DatabaseFeatures.supports_microsecond_precision = False  # mysql5.6+ 时间不要毫秒
+
+
+# user = 'root'
+# password = ''
+# host = '127.0.0.1'
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': engine,
+#         'NAME': 'dj',
+#         'USER': user,
+#         'PASSWORD': password,
+#         'HOST': host,
+#         # 'PORT': '5432',
+#         # 'TEST': {'NAME': 'test',},
+#         'OPTIONS': options,
+#     },
+
+# }
 
 
 # Password validation
@@ -171,6 +171,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+SSH_REPLAY = '/kf/replay'
 
 REDIS = ['127.0.0.1:6379', '2019']
 
