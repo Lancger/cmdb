@@ -1,0 +1,50 @@
+
+# 二层网络
+
+#桥接
+
+brctl addbr br8
+# brctl addif br8 ens33
+
+docker rm -f xyf
+docker network rm sdj
+
+docker network create \
+    --subnet 192.168.80.0/24 \
+    --gateway 192.168.80.238 sdj \
+    --aux-address "DefaultGatewayIPv4=192.168.80.1" \
+    -o com.docker.network.bridge.name=br8  \
+
+docker run -itd --network sdj --ip 192.168.80.33 --name=xyf busybox
+
+docker exec -it xyf /bin/sh
+
+
+
+#MACVLAN
+
+docker rm -fv b1 b2
+docker network rm mac_net1
+
+docker network create -d macvlan \
+    --subnet=192.168.80.0/16 \
+    --gateway=192.168.80.1 \
+    -o parent=ens33 mac_net1
+
+docker run -itd --name b1 --ip=192.168.80.11 --network mac_net1 busybox
+docker run -itd --name b2 --ip=192.168.80.12 --network mac_net1 busybox
+
+
+#1. 受linux内核安全限制，macvlan容器不能连宿主机IP，需将宿主机IP也调整为macvlan接口才能互联
+
+# ip addr del 192.168.80.238/24 dev ens33
+ifconfig ens33 0.0.0.0
+ip link add link ens33 dev ens33m type macvlan mode bridge
+ip link set ens33m up
+ip addr add 192.168.80.238/24 dev ens33m
+
+route add default gw 192.168.80.1
+
+# ifconfig ens33 promisc
+# ifconfig ens33m promisc
+
