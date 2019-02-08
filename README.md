@@ -31,8 +31,11 @@
         容器或centos系统布署并启动好了后， 访问网页，http://ip:8088，用户名/密码：admin/admin@2019
 
 
-# QQ群号 972746120 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5aa2ERr"><img border="0" src="c/group.png"  alt="django开发交流" title="django开发交流"></a>
-<a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5aa2ERr"><img border="0" src="c/qq.png"  alt="django开发交流" title="django开发交流"></a>
+# 顺便建了个群，欢迎加入
+* QQ群号 972746120 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5aa2ERr"><img border="0" src="c/group.png"  alt="django开发交流" title="django开发交流"></a>
+* <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5aa2ERr"><img border="0" src="c/qq.png"  alt="django开发交流" title="django开发交流"></a>
+
+
 
 # 感谢：
 1. 本项目堡垒机，借签的 <a href="https://github.com/jumpserver/coco" target="_blank">jumpserver/coco</a>
