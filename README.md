@@ -30,11 +30,16 @@
         
         容器或centos系统布署并启动好了后， 访问网页，http://ip:8088，用户名/密码：admin/admin@2019
 
+
+# QQ群号 972746120 <a target="_blank" href="https://jq.qq.com/?_wv=1027&k=5aa2ERr"><img border="0" src="../c/group.png"  alt="django开发交流" title="django开发交流"></a>
+![QQ群](../c/qq.png  "QQ群")
+
 # 感谢：
 1. 本项目堡垒机，借签的 <a href="https://github.com/jumpserver/coco" target="_blank">jumpserver/coco</a>
 2. webssh、websftp，借签 <a href="https://github.com/jimmy201602/webterminal" target="_blank">jimmy201602/webterminal</a>
 3. HTML模板结构，借签 <a href="https://github.com/hequan2017/cmdb" target="_blank">hequan2017/cmdb</a>
 
+<!-- github不允许超级链接在新窗口中打开？ -->
 <!-- * 本项目堡垒机，借签的 [jumpserver/coco](https://github.com/jumpserver/coco?_blank)
 * webssh、websftp，借签 [jimmy201602/webterminal](https://github.com/jimmy201602/webterminal?_blank)
 * HTML模板结构，借签 [hequan2017/cmdb](https://github.com/hequan2017/cmdb?_blank) -->
