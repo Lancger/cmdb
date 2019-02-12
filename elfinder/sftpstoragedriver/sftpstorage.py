@@ -82,9 +82,9 @@ class SFTPStorage(Storage):
         except Exception as e:
             print(e)
 
-        if not hasattr(self, '_sftp'):
-            self._sftp = self._ssh.open_sftp()
-        # self._sftp = self._ssh.open_sftp()
+        # if not hasattr(self, '_sftp'):
+        #     self._sftp = self._ssh.open_sftp()
+        self._sftp = self._ssh.open_sftp()
 
     def _close(self):
         self._ssh.close()
@@ -95,7 +95,14 @@ class SFTPStorage(Storage):
         """Lazy SFTP connection"""
         if not hasattr(self, '_sftp'):
             self._connect()
-        # self._connect()
+        elif self._sftp.sock.closed:
+            # >>>???????? 预览图片后，ftp_socket会关闭！！Transport仍处于连接中
+            print('SFTP Socket 连接意外中断，重新连接....')
+            self._close()
+            self._connect()
+        # if self._sftp.sock.closed:
+        #     import ipdb; ipdb.set_trace()
+
         return self._sftp
 
     def _join(self, *args):
