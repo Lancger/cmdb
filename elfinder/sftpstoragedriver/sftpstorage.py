@@ -97,11 +97,11 @@ class SFTPStorage(Storage):
             self._connect()
         elif self._sftp.sock.closed:
             # >>>???????? 预览图片后，ftp_socket会关闭！！Transport仍处于连接中
-            print('SFTP Socket 连接意外中断，重新连接....')
-            self._close()
-            self._connect()
-        # if self._sftp.sock.closed:
-        #     import ipdb; ipdb.set_trace()
+            # import ipdb; ipdb.set_trace()
+            print('SFTP Socket 连接意外中断，重新连接sftp....')
+            self._sftp = self._ssh.open_sftp()
+            # self._close()
+            # self._connect()
 
         return self._sftp
 

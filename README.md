@@ -43,16 +43,19 @@
 # 截图：
 * 软件终端
 ![xshell](c/xshell.gif  "xshell")
+* 主机列表
+![](https://github.com/py2010/webssh/raw/master/host.png)
+
 * 网页SFTP (在线文本编辑)
 ![websftp](c/websftp.png  "websftp")
+* 网页SFTP (图片预览)
+![websftp](c/websftp2.png  "websftp")
 * 网页终端
 ![](https://github.com/py2010/webssh/raw/master/webssh.png)
 ![](https://github.com/py2010/webssh/raw/master/webssh2.png)
 ![](https://github.com/py2010/webssh/raw/master/ssh.png)
 ![](https://github.com/py2010/webssh/raw/master/top.png  "top")
 ![vi](https://github.com/py2010/webssh/raw/master/vi.png  "vi")
-* 主机列表
-![](https://github.com/py2010/webssh/raw/master/host.png)
 
 * 容器添加
 ![](c/dk_1.png)
