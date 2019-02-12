@@ -7,6 +7,7 @@ import paramiko
 from sftpinterface import SFTPInterface
 from sshinterface import ServerInterface
 import sys
+# vi /usr/lib/python2.7/site-packages/sitecustomize.py
 reload(sys)
 sys.setdefaultencoding('UTF-8')
 

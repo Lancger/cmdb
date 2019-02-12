@@ -298,7 +298,8 @@ def docker_tty(chan, ws_channel, redis):
     """
     chan: 后端Docker HTTP 伪终端，当前函数中只收不发
     ws_channel：前端WebSocket，当前函数中只发不收
-    后端chan ==> 前端ws_channel
+    redis队列 ==> 后端chan ==> 前端ws_channel
+    Docker Server HTTP API 终端不支持汉字
     """
 
     # import ipdb; ipdb.set_trace()
@@ -355,7 +356,7 @@ def docker_tty(chan, ws_channel, redis):
                     try:
                         ws_channel.send({'text': json.dumps(['stdout', '%s\r\n' % smart_unicode(line)])}, immediately=True)
                     except UnicodeDecodeError, e:
-                        ws_channel.send({'text': json.dumps(['stdout', 'Error: utf-8编码失败！！！\r\n%s\r\n' % smart_unicode(e)], )}, immediately=True)
+                        ws_channel.send({'text': json.dumps(['stdout', 'Error: utf-8编码失败！！！'], )}, immediately=True)
 
         except Exception, e:
             # raise

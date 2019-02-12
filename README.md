@@ -22,10 +22,10 @@
 * 搭建：
 
         一. 容器部署方式（推荐，如果是生产方式，建议在外部部署使用mysql、redis）
-        # 拉取镜像，基于centos7创建，总大小444M
+        # 拉取镜像(基于centos7创建，pull下载169.2M)
         docker pull py2010/cmdb
         # 启动容器，部署完成
-        docker run -p 8088:8088 py2010/cmdb
+        docker run -it -p 8088:8088 py2010/cmdb
         二、如果不使用容器，手工部署也很简单，requirements.txt中写得比较详细，
         准备centos6或7（估计unbuntu也行，没实际布署测试过），
         python2.7安装requirements.txt中的模块，安装redis。
@@ -42,15 +42,32 @@
 
 # 截图：
 * 软件终端
-![xshell](https://github.com/py2010/webssh/raw/master/xshell.gif  "xshell")
+![xshell](c/xshell.gif  "xshell")
 * 主机列表
 ![](https://github.com/py2010/webssh/raw/master/host.png)
+* 网页SFTP (在线文本编辑)
+![websftp](c/websftp.png  "websftp")
 * 网页终端
 ![](https://github.com/py2010/webssh/raw/master/webssh.png)
 ![](https://github.com/py2010/webssh/raw/master/webssh2.png)
 ![](https://github.com/py2010/webssh/raw/master/ssh.png)
-![](https://github.com/py2010/webssh/raw/master/top.png)
+![](https://github.com/py2010/webssh/raw/master/top.png  "top")
 ![vi](https://github.com/py2010/webssh/raw/master/vi.png  "vi")
+
+* 容器添加
+![](c/dk_1.png)
+* 容器管理列表
+![](c/dk_2.png)
+* 容器终端(webssh)
+![](c/dk_3.png)
+* 镜像管理列表
+![](c/dk_img.png)
+* 网络列表
+![](c/dk_net.png)
+* 网络添加(支持二层网络)
+![](c/dk_net2.png)
+
+
 
 # 感谢：
 1. 本项目堡垒机，借签的 <a href="https://github.com/jumpserver/coco" target="_blank">jumpserver/coco</a>
