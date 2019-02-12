@@ -25,7 +25,7 @@
         # 拉取镜像(基于centos7创建，pull下载169.2M)
         docker pull py2010/cmdb
         # 启动容器，部署完成
-        docker run -it -p 8088:8088 py2010/cmdb
+        docker run -it -p 8088:8088 -p 2222:2222 py2010/cmdb
         二、如果不使用容器，手工部署也很简单，requirements.txt中写得比较详细，
         准备centos6或7（估计unbuntu也行，没实际布署测试过），
         python2.7安装requirements.txt中的模块，安装redis。
@@ -62,9 +62,9 @@
 ![](c/dk_3.png)
 * 镜像管理列表
 ![](c/dk_img.png)
-* 网络列表
+* 容器网络列表
 ![](c/dk_net.png)
-* 网络添加(支持二层网络)
+* 容器网络添加(支持二层网络)
 ![](c/dk_net2.png)
 
 
